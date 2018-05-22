@@ -1,14 +1,29 @@
 package bot;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.jaunt.Element;
 import com.jaunt.Elements;
 import com.jaunt.NotFound;
 import com.jaunt.ResponseException;
 import com.jaunt.UserAgent;
+import com.pengrad.telegrambot.model.Update;
 
-public class Raspa {
+public class Raspa implements Sujeito {
+	
+	private List<Observador> observadores = new LinkedList<Observador>();
+	
+	public void registerObserver(Observador observador){
+		observadores.add(observador);
+	}
+	
+	public void notifyObservers(long chatId, String moedaData){
+		for(Observador observador:observadores){
+			observador.update(chatId, moedaData);
+		}
+	}
 	
 	private ArrayList<String> lista = new ArrayList<String>();
 	
@@ -32,33 +47,62 @@ public class Raspa {
 		}
 	}
 	
-	public String procurandoPais(String pais) {
+	/*public void searchStudent(Update update){
+		String studentsData = null;
+		for(Student student: students){
+			if(student.getName().equals(update.message().text())){
+				studentsData = student.getAcademicNumber();
+			}
+		}
 		
+		if(studentsData != null){
+			this.notifyObservers(update.message().chat().id(), studentsData);
+		} else {
+			this.notifyObservers(update.message().chat().id(), "Student not found");
+		}
+		
+	}
+	
+	public void searchTeacher(Update update){
+		String teachersData = null;
+		for(Teacher teacher:teachers){
+			if(teacher.getName().equals(update.message().text())) teachersData = teacher.getField();
+		}
+		
+		if(teachersData != null){
+			this.notifyObservers(update.message().chat().id(), teachersData);
+		} else {
+			this.notifyObservers(update.message().chat().id(), "Teacher not found");
+		}
+		
+	}*/
+	
+	public void procurandoPais(Update update) {
+		String paisDados = null;
 		for(String s : lista) {
-			if(s.toLowerCase().replace(" ", "").equals(pais.toLowerCase().replace(" ", ""))) {
-				return "Preço de compra: "+lista.get((lista.indexOf(s)) + 2)+"\n"+
+			if(s.toLowerCase().replace(" ", "").equals(update.message().text().toLowerCase().replace(" ", ""))) {
+				paisDados = "Preço de compra: "+lista.get((lista.indexOf(s)) + 2)+"\n"+
 						"Preço de venda: "+lista.get((lista.indexOf(s)) + 3);
 			}
 			else if ((lista.indexOf(s)) == (lista.size() -4)) {
-				return "Não foi possivel encontrar o País.";
+				paisDados = "Não foi possivel encontrar o País.";
 			}
 		}	
-		return "";
+		
 	}
 	
-	public String procurandoMoeda(String moeda) {
-		
+	public void procurandoMoeda(Update update) {
+		String moedaDados = null;
 		for(String s : lista) {
 			if((s.toLowerCase().replace(" ", "")
-					.equals(moeda.toLowerCase().replace(" ", "")))) {
-				return "Preço de compra: "+lista.get((lista.indexOf(s)) + 1)+"\n"+
+					.equals(update.message().text().toLowerCase().replace(" ", "")))) {
+				moedaDados = "Preço de compra: "+lista.get((lista.indexOf(s)) + 1)+"\n"+
 						"Preço de venda: "+lista.get((lista.indexOf(s)) + 2);
 			}
 			else if (lista.indexOf(s) == (lista.size() -3)) {
-				return "Não foi possivel encontrar a Moeda.";
+				moedaDados = "Não foi possivel encontrar a Moeda.";
 			}
 		}	
-		return "";
 	}
 	
 	public String procurandoPadrao(String moeda) {
@@ -90,5 +134,5 @@ public class Raspa {
 		}
 
 		return "";
-	}		
+	}	
 }
